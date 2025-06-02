@@ -11,6 +11,10 @@
 #define INTIMACY_DEFAULT    2
 #define INTIMACY_MAX        4
 
+#define EMOTION_MIN        0
+#define EMOTION_DEFAULT    3
+#define EMOTION_MAX        3
+
 #define POTATO_SOUP         1
 #define MUSHROOM_SOUP       2
 #define BROCCOLI_SOUP       3
@@ -18,13 +22,14 @@
 #define ACTION_NOTHING       0
 #define ACTION_SCRATCH      1
 
+#define DELAY_STEP 500
 #define DELAY_INTRO 1000
 #define DELAY_TURN 2500
 
 void reset(int milliSec);
 void mSleep(int milliSec);
 void introAndGetName(char* catName, int catNameLength);
-void showStatus(int intimacy, int soupCount);
+void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int catEmotion);
 int getAction(); //return 0 or 1 for valid input, return -1 for invalid input
 int rollDice(); // return 1~6
 void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos);
@@ -35,6 +40,9 @@ int main()
     char catName[100] = { 0 };
     int intimacy = INTIMACY_DEFAULT;
     int soupCount = 0;
+    int cutePoint = 0;
+    int catEmotion = EMOTION_DEFAULT;
+
     int catPos = HME_POS;
     int catPreviousPos = catPos;
     int scratcherPos = -1;
@@ -48,8 +56,8 @@ int main()
     while (1) {
 
         // show status
-        showStatus(intimacy, soupCount);
         mSleep(500);
+        showStatus(catName, intimacy, soupCount, cutePoint, catEmotion);
 
         // cat move 
         printf("%s 이동: 집사와 친밀할수록 냄비 쪽으로 갈 확률이 높아집니다.\n", catName);
@@ -146,10 +154,27 @@ void introAndGetName(char* catName, int catNameLength) {
     printf("야옹이의 이름은 %s입니다.\n\n", catName);
 }
 
-void showStatus(int intimacy, int soupCount)
+void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int catEmotion)
 {
     printf("==================== 현재 상태 ===================\n");
     printf("현재까지 만든 수프 : %d개\n", soupCount);
+    printf("CP: %d 포인트\n", cutePoint);
+    printf("%s 기분(0~3): %d\n", catName, catEmotion);
+    switch (catEmotion)
+    {
+    case 0:
+        printf(" 기분이 매우 나쁩니다.\n");
+        break;
+    case 1:
+        printf(" 심심해합니다.\n");
+        break;
+    case 2:
+        printf(" 식빵을 굽습니다.\n");
+        break;
+    case 3:
+        printf(" 골골송을 부릅니다.\n");
+        break;
+    }
     printf("집사와의 관계(0~4) : %d\n", intimacy);
     if (intimacy < INTIMACY_MIN || intimacy > INTIMACY_MAX) {
         printf("ERROR: 허용된 STATUS 값을 벗어났습니다. STATUS:%d\n", intimacy);
