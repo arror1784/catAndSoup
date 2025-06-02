@@ -65,16 +65,50 @@ int main()
 
         catPreviousPos = catPos;
 
-        int rollValue = rollDice();
-        if (rollValue >= 6 - intimacy) {
-            printf("냄비 쪽으로 움직입니다.\n");
+        switch (catEmotion)
+        {
+        case 0:
+            printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.\n", catName);
             if (catPos < BWL_PO)
                 catPos++;
+            break;
+        case 1:
+        {
+            if (scratcherPos != -1 && catTowerPos - 1) {
+                printf("%s은(는) 놀 거리가 없어서 기분이 매우 나빠집니다.\n", catName);
+                if (catEmotion > EMOTION_MIN)
+                    catEmotion -= 1;
+                break;
+            } else {
+                int distanceToScracher = scratcherPos == -1 ? INT_MAX : scratcherPos - catPos;
+                int distanceToCatTower = catTowerPos == -1 ? INT_MAX : catTowerPos - catPos;
+
+                int absDistanceToScracher = abs(distanceToScracher);
+                int absDistanceToCatTower = abs(distanceToCatTower);
+
+                if (absDistanceToScracher <= absDistanceToCatTower) {
+                    if (distanceToScracher < 0)
+                        catPos--;
+                    else if (distanceToScracher > 0)
+                        catPos++;
+                }
+                else {
+                    if (distanceToCatTower < 0)
+                        catPos--;
+                    else if (distanceToCatTower > 0)
+                        catPos++;
+                }
+            }
+            break;  
         }
-        else {
-            printf("집 쪽으로 움직입니다.\n");
-            if (catPos > HME_POS)
-                catPos--;
+        case 2:
+            printf("%s은(는) 기분좋게 식빵을 굽고 있습니다.\n", catName);
+            break;
+        case 3:
+            printf("%s은(는) 골골송을 부르며 수프를 만들러 갑니다.\n",catName);
+            if (catPos < BWL_PO)
+                catPos++;
+            break;
         }
         mSleep(DELAY_STEP);
 
@@ -102,7 +136,7 @@ int main()
         if (action == ACTION_NOTHING) {
             printf("아무것도 하지 않습니다.\n");
             printf("4 / 6의 확률로 친밀도가 떨어집니다.\n");
-            rollValue = rollDice();
+            int rollValue = rollDice();
             if (rollValue <= 4) {
                 if (intimacy > INTIMACY_MIN)
                     intimacy--;
@@ -117,7 +151,7 @@ int main()
         else if (action == ACTION_SCRATCH) {
             printf("쫀떡의 턱을 긁어주었습니다.\n");
             printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
-            rollValue = rollDice();
+            int rollValue = rollDice();
             if (rollValue > 4) {
                 if (intimacy < INTIMACY_MAX)
                     intimacy++;
