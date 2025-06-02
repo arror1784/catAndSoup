@@ -56,8 +56,8 @@ int main()
     while (1) {
 
         // show status
-        mSleep(500);
         showStatus(catName, intimacy, soupCount, cutePoint, catEmotion);
+        mSleep(DELAY_STEP);
 
         // cat move 
         printf("%s 이동: 집사와 친밀할수록 냄비 쪽으로 갈 확률이 높아집니다.\n", catName);
@@ -76,7 +76,7 @@ int main()
             if (catPos > HME_POS)
                 catPos--;
         }
-        mSleep(500);
+        mSleep(DELAY_STEP);
 
         // check to make soup
         int checkResult = checkCatPositionAndMakeSoup(catPos);
@@ -91,11 +91,11 @@ int main()
                 checkResult == MUSHROOM_SOUP ? "양송이 수프" : "브로콜리 수프");
             printf("현재까지 만든 수프: %d개\n", soupCount);
         }
-        mSleep(500);
+        mSleep(DELAY_STEP);
 
         // showRoom
         showRoom(catPos, catPreviousPos, scratcherPos, catTowerPos);
-        mSleep(500);
+        mSleep(DELAY_STEP);
 
         // doAction
         int action = getAction();
