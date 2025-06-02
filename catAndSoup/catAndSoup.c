@@ -27,7 +27,7 @@ void introAndGetName(char* catName, int catNameLength);
 void showStatus(int intimacy, int soupCount);
 int getAction(); //return 0 or 1 for valid input, return -1 for invalid input
 int rollDice(); // return 1~6
-void showRoom(int catPos, int catPreviousPos);
+void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos);
 int checkCatPositionAndMakeSoup(int catPos); // return -1 is nothing, return 0 is home, return 1,2,3 is potato, mushroom, broccoli
 
 int main()
@@ -37,6 +37,8 @@ int main()
     int soupCount = 0;
     int catPos = HME_POS;
     int catPreviousPos = catPos;
+    int scratcherPos = -1;
+    int catTowerPos = -1;
 
     srand((unsigned int)time(NULL));
 
@@ -84,7 +86,7 @@ int main()
         mSleep(500);
 
         // showRoom
-        showRoom(catPos, catPreviousPos);
+        showRoom(catPos, catPreviousPos, scratcherPos, catTowerPos);
         mSleep(500);
 
         // doAction
@@ -197,18 +199,22 @@ int rollDice()
     return random;
 }
 
-void showRoom(int catPos, int catPreviousPos) {
+void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos) {
     printf("\n");
     for (int i = 0; i < ROOM_WIDTH; i++)
         printf("#");
     printf("\n");
 
-    // home and bowl
+    // home and bowl and scratcher and catTower
     for (int i = 0; i < ROOM_WIDTH; i++) {
         if (i == HME_POS)
             printf("H");
         else if (i == BWL_PO)
             printf("B");
+        else if (i == scratcherPos)
+            printf("S");
+        else if (i == catTowerPos)
+            printf("T");
         else if (i == 0 || i == ROOM_WIDTH - 1)
             printf("#");
         else
