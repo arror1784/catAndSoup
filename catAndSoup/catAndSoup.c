@@ -19,8 +19,8 @@
 #define MUSHROOM_SOUP       2
 #define BROCCOLI_SOUP       3
 
-#define ACTION_NOTHING       0
-#define ACTION_SCRATCH      1
+#define INTERACTION_NOTHING       0
+#define INTERACTION_SCRATCH      1
 
 #define DELAY_STEP 500
 #define DELAY_INTRO 1000
@@ -30,7 +30,7 @@ void reset(int milliSec);
 void mSleep(int milliSec);
 void introAndGetName(char* catName, int catNameLength);
 void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int catEmotion);
-int getAction(); //return 0 or 1 for valid input, return -1 for invalid input
+int getInteraction(int hasScracher, int hasCatTower); //return 0 or 1 for valid input, return -1 for invalid input
 int rollDice(); // return 1~6
 void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos);
 int checkCatPositionAndMakeSoup(int catPos); // return -1 is nothing, return 0 is home, return 1,2,3 is potato, mushroom, broccoli
@@ -54,7 +54,6 @@ int main()
     reset(DELAY_INTRO);
 
     while (1) {
-
         // show status
         showStatus(catName, intimacy, soupCount, cutePoint, catEmotion);
         mSleep(DELAY_STEP);
@@ -131,9 +130,9 @@ int main()
         showRoom(catPos, catPreviousPos, scratcherPos, catTowerPos);
         mSleep(DELAY_STEP);
 
-        // doAction
-        int action = getAction();
-        if (action == ACTION_NOTHING) {
+        // doInteraction
+        int interaction = getInteraction(scratcherPos, catTowerPos);
+        if (interaction == INTERACTION_NOTHING) {
             printf("아무것도 하지 않습니다.\n");
             printf("4 / 6의 확률로 친밀도가 떨어집니다.\n");
             int rollValue = rollDice();
@@ -148,7 +147,7 @@ int main()
                 printf("현재 친밀도 : %d\n", intimacy);
             }
         }
-        else if (action == ACTION_SCRATCH) {
+        else if (interaction == INTERACTION_SCRATCH) {
             printf("쫀떡의 턱을 긁어주었습니다.\n");
             printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
             int rollValue = rollDice();
@@ -235,17 +234,17 @@ void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int c
     printf("==================================================\n\n");
 }
 
-int getAction()
+int getInteraction(int hasScracher, int hasCatTower)
 {
-    int userAction = -1;
+    int userInteraction = -1;
     printf("어떤 상호작용을 하시겠습니까? 0. 아무것도 하지 않음 1. 긁어 주기\n");
 
     do {
         printf(">> ");
-        scanf_s("%d", &userAction);
-    } while (userAction != 0 && userAction != 1);
+        scanf_s("%d", &userInteraction);
+    } while (userInteraction != 0 && userInteraction != 1);
 
-    return userAction;
+    return userInteraction;
 }
 
 int rollDice()
