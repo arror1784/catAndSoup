@@ -28,33 +28,52 @@
 #define DELAY_INTRO 1000
 #define DELAY_TURN 2500
 
+typedef struct {
+    int catTower;
+    int scratcher;
+    int mouseToy;
+    int pointerToy;
+}Items;
+
+typedef struct {
+    int catPos;
+    int catPreviousPos;
+}CatPositions;
+
+typedef struct {
+    int intimacy;
+    int soupCount;
+    int cutePoint;
+    int catEmotion;
+}GameState;
+
+
 void reset(int milliSec);
 void mSleep(int milliSec);
 void introAndGetName(char* catName, int catNameLength);
-void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int catEmotion);
+void showStatus(char* catName, GameState gameState);
 
 // return 0 noting, 1 scratch, 2 mouse toy, 3 pointer toy 
 // hasMouseToy, hasPointertoy 0 means NO
-int getInteraction(int hasMouseToy, int hasPointerToy);
+int getInteraction(Items items);
 int rollDice(void); // return 1~6
-void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos);
+void showRoom(CatPositions catPositions, Items items);
 int makeSoup(void); // return 1,2,3 is potato, mushroom, broccoli
 
 int main()
 {
     char catName[100] = { 0 };
-    int intimacy = INTIMACY_DEFAULT;
-    int soupCount = 0;
-    int cutePoint = 0;
-    int catEmotion = EMOTION_DEFAULT;
+    GameState gameState = { 0 };
+    gameState.intimacy = INTIMACY_DEFAULT;
+    gameState.soupCount = 0;
+    gameState.cutePoint = 0;
+    gameState.catEmotion = EMOTION_DEFAULT;
+    
+    CatPositions catPositions = { 0 };
+    catPositions.catPos = HME_POS;
+    catPositions.catPreviousPos = HME_POS;
 
-    int catPos = HME_POS;
-    int catPreviousPos = catPos;
-    int scratcherPos = -1;
-    int catTowerPos = -1;
-
-    int pointerToy = 0;
-    int mouseToy = 0;
+    Items items = { 0 };
 
     srand((unsigned int)time(NULL));
 
@@ -62,23 +81,23 @@ int main()
     reset(DELAY_INTRO);
 
     while (1) {
-        catPreviousPos = catPos;
+        catPositions.catPreviousPos = catPositions.catPos;
 
         // show status
-        showStatus(catName, intimacy, soupCount, cutePoint, catEmotion);
+        showStatus(catName, gameState);
         mSleep(DELAY_STEP);
 
         // feel bad
-        printf("주사위 눈이 %d이하면 그냥 기분이 나빠집니다. 고양이니까?\n", 6 - intimacy);
+        printf("주사위 눈이 %d이하면 그냥 기분이 나빠집니다. 고양이니까?\n", 6 - gameState.intimacy);
         printf("주사위를 굴립니다. 또르르...\n");
  
         int rollValue = rollDice();
         printf("%d이(가) 나왔습니다.\n",rollValue);
-        if (rollValue <= (6 - intimacy)) {
-            int catPrevEmotion = catEmotion;
-            if (catEmotion > EMOTION_MIN)
-                catEmotion -= 1;
-            printf("%s의 기분이 나빠집니다: %d -> %d\n", catPrevEmotion, catEmotion);
+        if (rollValue <= (6 - gameState.intimacy)) {
+            int catPrevEmotion = gameState.catEmotion;
+            if (gameState.catEmotion > EMOTION_MIN)
+                gameState.catEmotion -= 1;
+            printf("%s의 기분이 나빠집니다: %d -> %d\n", catName, catPrevEmotion, gameState.catEmotion);
         }
         else {
             printf("다행히 %s의 기분이 나빠지지 않았습니다.\n",catName);
@@ -88,40 +107,40 @@ int main()
 
         // cat move
         printf("%s 이동: 집사와 친밀할수록 냄비 쪽으로 갈 확률이 높아집니다.\n", catName);
-        printf("주사위 눈이 %d 이상이면 냄비 쪽으로 이동합니다.\n", 6 - intimacy);
+        printf("주사위 눈이 %d 이상이면 냄비 쪽으로 이동합니다.\n", 6 - gameState.intimacy);
 
-        switch (catEmotion)
+        switch (gameState.catEmotion)
         {
         case 0:
             printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.\n", catName);
-            if (catPos < BWL_PO)
-                catPos++;
+            if (catPositions.catPos < BWL_PO)
+                catPositions.catPos++;
             break;
         case 1:
         {
-            if (scratcherPos != -1 && catTowerPos - 1) {
+            if (items.scratcher != -1 && items.catTower - 1) {
                 printf("%s은(는) 놀 거리가 없어서 기분이 매우 나빠집니다.\n", catName);
-                if (catEmotion > EMOTION_MIN)
-                    catEmotion -= 1;
+                if (gameState.catEmotion > EMOTION_MIN)
+                    gameState.catEmotion -= 1;
                 break;
             } else {
-                int distanceToScracher = scratcherPos == -1 ? INT_MAX : scratcherPos - catPos;
-                int distanceToCatTower = catTowerPos == -1 ? INT_MAX : catTowerPos - catPos;
+                int distanceToScracher = items.scratcher == -1 ? INT_MAX : items.scratcher - catPositions.catPos;
+                int distanceToCatTower = items.catTower == -1 ? INT_MAX : items.catTower - catPositions.catPos;
 
                 int absDistanceToScracher = abs(distanceToScracher);
                 int absDistanceToCatTower = abs(distanceToCatTower);
 
                 if (absDistanceToCatTower <= absDistanceToScracher) {
                     if (distanceToCatTower < 0)
-                        catPos--;
+                        catPositions.catPos--;
                     else if (distanceToCatTower > 0)
-                        catPos++;
+                        catPositions.catPos++;
                 }
                 else {
                     if (distanceToScracher < 0)
-                        catPos--;
+                        catPositions.catPos--;
                     else if (distanceToScracher > 0)
-                        catPos++;
+                        catPositions.catPos++;
                 }
             }
             break;  
@@ -131,125 +150,137 @@ int main()
             break;
         case 3:
             printf("%s은(는) 골골송을 부르며 수프를 만들러 갑니다.\n",catName);
-            if (catPos < BWL_PO)
-                catPos++;
+            if (catPositions.catPos < BWL_PO)
+                catPositions.catPos++;
             break;
         }
         mSleep(DELAY_STEP);
 
 
         // do action
-        if (catPos == HME_POS && catPreviousPos == HME_POS) {
+        if (catPositions.catPos == HME_POS && catPositions.catPreviousPos == HME_POS) {
             printf("%s은(는) 집에서 기분좋게 휴식을 취했습니다.\n", catName);
         }
-        else if(catPos == BWL_PO){
+        else if(catPositions.catPos == BWL_PO){
             int soup = makeSoup();
-            soupCount += 1;
+            gameState.soupCount += 1;
             printf("%s이(가) %s를 만들었습니다!\n", catName,
                 soup == POTATO_SOUP ? "감자 수프" :
                 soup == MUSHROOM_SOUP ? "양송이 수프" : "브로콜리 수프");
-            printf("현재까지 만든 수프: %d개\n", soupCount);
+            printf("현재까지 만든 수프: %d개\n", gameState.soupCount);
         }
-        else if (catPos == scratcherPos) {
-            int catPrevEmotion = catEmotion;
-            catEmotion += 1;
-            if (catEmotion > EMOTION_MAX)
-                catEmotion = EMOTION_MAX;
+        else if (catPositions.catPos == items.scratcher) {
+            int catPrevEmotion = gameState.catEmotion;
+            gameState.catEmotion += 1;
+            if (gameState.catEmotion > EMOTION_MAX)
+                gameState.catEmotion = EMOTION_MAX;
             printf("%s은(는) 스크래처를 긁고 놀았습니다.\n", catName);
-            printf("기분이 제법 좋아졌습니다. %d -> %d\n", catPrevEmotion, catEmotion);
+            printf("기분이 제법 좋아졌습니다. %d -> %d\n", catPrevEmotion, gameState.catEmotion);
         }
-        else if (catPos == catTowerPos) {
-            int catPrevEmotion = catEmotion;
-            catEmotion += 2;
-            if (catEmotion > EMOTION_MAX)
-                catEmotion = EMOTION_MAX;
+        else if (catPositions.catPos == items.catTower) {
+            int catPrevEmotion = gameState.catEmotion;
+            gameState.catEmotion += 2;
+            if (gameState.catEmotion > EMOTION_MAX)
+                gameState.catEmotion = EMOTION_MAX;
             printf("%s은(는) 캣타워를 뛰어다닙니다.\n", catName);
-            printf("기분이 제법 좋아졌습니다. %d -> %d\n", catPrevEmotion, catEmotion);
+            printf("기분이 제법 좋아졌습니다. %d -> %d\n", catPrevEmotion, gameState.catEmotion);
         }
         mSleep(DELAY_STEP);
 
         // showRoom
-        showRoom(catPos, catPreviousPos, scratcherPos, catTowerPos);
+        showRoom(catPositions, items);
         mSleep(DELAY_STEP);
 
         // doInteraction
-        int interaction = getInteraction(scratcherPos, catTowerPos);
+        int interaction = getInteraction(items);
         if (interaction == INTERACTION_NOTHING) {
-            int catPrevEmotion = catEmotion;
-            catEmotion -= 1;
-            if (catEmotion < EMOTION_MIN)
-                catEmotion = EMOTION_MIN;
+            int catPrevEmotion = gameState.catEmotion;
+            gameState.catEmotion -= 1;
+            if (gameState.catEmotion < EMOTION_MIN)
+                gameState.catEmotion = EMOTION_MIN;
             printf("아무것도 하지 않습니다.\n");
-            printf("%s의 기분이 나빠졌습니다: %d -> %d\n", catName, catPrevEmotion, catEmotion);
+            printf("%s의 기분이 나빠졌습니다: %d -> %d\n", catName, catPrevEmotion, gameState.catEmotion);
             printf("5 / 6의 확률로 친밀도가 떨어집니다.\n");
             int rollValue = rollDice();
             if (rollValue <= 5) {
-                if (intimacy > INTIMACY_MIN)
-                    intimacy -= 1;
+                if (gameState.intimacy > INTIMACY_MIN)
+                    gameState.intimacy -= 1;
                 printf("집사와의 관계가 나빠집니다.\n");
-                printf("현재 친밀도 : %d\n", intimacy);
+                printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
             else {
                 printf("다행히 친밀도가 떨어지지 않았습니다.\n");
-                printf("현재 친밀도 : %d\n", intimacy);
+                printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
         }
         else if (interaction == INTERACTION_SCRATCH) {
             printf("%s의 턱을 긁어주었습니다.\n",catName);
-            printf("%s의 기분이 그대로입니다: %d\n", catName, catEmotion);
+            printf("%s의 기분이 그대로입니다: %d\n", catName, gameState.catEmotion);
             printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
             int rollValue = rollDice();
             if (rollValue > 4) {
-                if (intimacy < INTIMACY_MAX)
-                    intimacy++;
+                if (gameState.intimacy < INTIMACY_MAX)
+                    gameState.intimacy++;
                 printf("집사와의 관계가 좋아집니다.\n");
-                printf("현재 친밀도 : %d\n", intimacy);
+                printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
             else {
                 printf("친밀도는 그대로입니다.\n");
-                printf("현재 친밀도 : %d\n", intimacy);
+                printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
         }
         else if (interaction == INTERACTION_MOUSE_TOY) {
-            int catPrevEmotion = catEmotion;
-            catEmotion += 1;
-            if (catEmotion > EMOTION_MAX)
-                catEmotion = EMOTION_MAX;
+            int catPrevEmotion = gameState.catEmotion;
+            gameState.catEmotion += 1;
+            if (gameState.catEmotion > EMOTION_MAX)
+                gameState.catEmotion = EMOTION_MAX;
             printf("장남감 쥐로 %s와 놀아 주었습니다.\n", catName);
-            printf("%s의 기분이 조금 좋아졌습니다: %d -> %d\n", catName, catPrevEmotion, catEmotion);
+            printf("%s의 기분이 조금 좋아졌습니다: %d -> %d\n", catName, catPrevEmotion, gameState.catEmotion);
             printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
             int rollValue = rollDice();
             if (rollValue >= 4) {
-                if (intimacy < INTIMACY_MAX)
-                    intimacy++;
+                if (gameState.intimacy < INTIMACY_MAX)
+                    gameState.intimacy++;
                 printf("집사와의 관계가 좋아집니다.\n");
-                printf("현재 친밀도 : %d\n", intimacy);
+                printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
             else {
                 printf("친밀도는 그대로입니다.\n");
-                printf("현재 친밀도 : %d\n", intimacy);
+                printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
         }
         else if (interaction == INTERACTION_POINTER_TOY) {
-            int catPrevEmotion = catEmotion;
-            catEmotion += 2;
-            if (catEmotion > EMOTION_MAX)
-                catEmotion = EMOTION_MAX;
+            int catPrevEmotion = gameState.catEmotion;
+            gameState.catEmotion += 2;
+            if (gameState.catEmotion > EMOTION_MAX)
+                gameState.catEmotion = EMOTION_MAX;
             printf("레이저 포인터로 %s와 신나게 놀아 주었습니다.\n", catName);
-            printf("%s의 기분이 꽤 좋아졌습니다: %d -> %d\n", catName, catPrevEmotion, catEmotion);
+            printf("%s의 기분이 꽤 좋아졌습니다: %d -> %d\n", catName, catPrevEmotion, gameState.catEmotion);
             printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
             int rollValue = rollDice();
             if (rollValue >= 2) {
-                if (intimacy < INTIMACY_MAX)
-                    intimacy++;
+                if (gameState.intimacy < INTIMACY_MAX)
+                    gameState.intimacy++;
                 printf("집사와의 관계가 좋아집니다.\n");
-                printf("현재 친밀도 : %d\n", intimacy);
+                printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
             else {
                 printf("친밀도는 그대로입니다.\n");
-                printf("현재 친밀도 : %d\n", intimacy);
+                printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
         }
+
+        // CP create
+        int createdCP = max(0, gameState.catEmotion - 1) + gameState.intimacy;
+        printf("%s의 기분(%d~%d): %d\n", catName, EMOTION_MIN, EMOTION_MAX, gameState.catEmotion);
+        printf("집사와의 관계(%d~%d): %d\n", INTIMACY_MIN, INTIMACY_MAX, gameState.intimacy);
+        printf("%s의 기분과 친밀도에 따라서 CP가 %d 포인트 생사되었습니다.\n", catName, createdCP);
+        printf("보유 CP: %d 포인트\n", createdCP);
+
+        // shop
+
+
+
         reset(DELAY_TURN);
     }
 }
@@ -275,13 +306,13 @@ void introAndGetName(char* catName, int catNameLength) {
     printf("야옹이의 이름은 %s입니다.\n\n", catName);
 }
 
-void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int catEmotion)
+void showStatus(char* catName, GameState gameState)
 {
     printf("==================== 현재 상태 ===================\n");
-    printf("현재까지 만든 수프 : %d개\n", soupCount);
-    printf("CP: %d 포인트\n", cutePoint);
-    printf("%s 기분(0~3): %d\n", catName, catEmotion);
-    switch (catEmotion)
+    printf("현재까지 만든 수프 : %d개\n", gameState.soupCount);
+    printf("CP: %d 포인트\n", gameState.cutePoint);
+    printf("%s 기분(0~3): %d\n", catName, gameState.catEmotion);
+    switch (gameState.catEmotion)
     {
     case 0:
         printf(" 기분이 매우 나쁩니다.\n");
@@ -296,12 +327,12 @@ void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int c
         printf(" 골골송을 부릅니다.\n");
         break;
     }
-    printf("집사와의 관계(0~4) : %d\n", intimacy);
-    if (intimacy < INTIMACY_MIN || intimacy > INTIMACY_MAX) {
-        printf("ERROR: 허용된 STATUS 값을 벗어났습니다. STATUS:%d\n", intimacy);
+    printf("집사와의 관계(0~4) : %d\n", gameState.intimacy);
+    if (gameState.intimacy < INTIMACY_MIN || gameState.intimacy > INTIMACY_MAX) {
+        printf("ERROR: 허용된 STATUS 값을 벗어났습니다. STATUS:%d\n", gameState.intimacy);
         exit(-1);
     }
-    switch (intimacy)
+    switch (gameState.intimacy)
     {
     case 0:
         printf(" 곁에 오는것조차 싫어합니다.\n");
@@ -322,7 +353,7 @@ void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int c
     printf("==================================================\n\n");
 }
 
-int getInteraction(int hasMouseToy, int hasPointerToy)
+int getInteraction(Items items)
 {
     int userInteraction = -1;
     int interactionCount = -1;
@@ -333,11 +364,11 @@ int getInteraction(int hasMouseToy, int hasPointerToy)
     printf("%d. 아무것도 하지 않음\n", interactionCount);
     interactionCount += 1;
     printf("%d. 긁어 주기\n", interactionCount);
-    if (hasMouseToy) {
+    if (items.mouseToy) {
         interactionCount += 1;
         printf("%d. 장난감 쥐로 놀아주기\n", interactionCount);
     }
-    if (hasPointerToy) {
+    if (items.pointerToy) {
         interactionCount += 1;
         printf("%d. 레이저 포인터로 놀아주기\n", interactionCount);
     }
@@ -348,7 +379,7 @@ int getInteraction(int hasMouseToy, int hasPointerToy)
     } while (!(userInteraction >= 0 && userInteraction <= interactionCount));
 
     // if userInteraction is 2 and no mouse Toy, it means 2 is pointer toy
-    if (userInteraction == 2 && !hasMouseToy)
+    if (userInteraction == 2 && !items.mouseToy)
         return INTERACTION_POINTER_TOY;
 
     return userInteraction;
@@ -364,7 +395,7 @@ int rollDice(void)
     return random;
 }
 
-void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos) {
+void showRoom(CatPositions catPositions, Items items) {
     printf("\n");
     for (int i = 0; i < ROOM_WIDTH; i++)
         printf("#");
@@ -376,9 +407,9 @@ void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos
             printf("H");
         else if (i == BWL_PO)
             printf("B");
-        else if (i == scratcherPos)
+        else if (i == items.scratcher)
             printf("S");
-        else if (i == catTowerPos)
+        else if (i == items.catTower)
             printf("T");
         else if (i == 0 || i == ROOM_WIDTH - 1)
             printf("#");
@@ -389,9 +420,9 @@ void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos
 
     // cat
     for (int i = 0; i < ROOM_WIDTH; i++) {
-        if (catPos == i)
+        if (catPositions.catPos == i)
             printf("C");
-        else if (catPreviousPos == i)
+        else if (catPositions.catPreviousPos == i)
             printf(".");
         else if (i == 0 || i == ROOM_WIDTH - 1)
             printf("#");
