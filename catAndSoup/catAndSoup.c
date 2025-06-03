@@ -68,10 +68,11 @@ void showStatus(char* catName, GameState_t gameState);
 
 // return 0 noting, 1 scratch, 2 mouse toy, 3 pointer toy 
 InteractionCode_t getInteraction(Items_t items);
-ItemCode_t shop(Items_t items);
+ItemCode_t getShoppingItem(Items_t items, GameState_t gameState);
 int rollDice(void); // return 1~6
 void showRoom(CatPositions_t catPositions, Items_t items);
 SoupCode_t makeSoup(void); // return 1,2,3 is potato, mushroom, broccoli
+int getRandomRidePosition(void);
 
 int main()
 {
@@ -291,8 +292,48 @@ int main()
         printf("보유 CP: %d 포인트\n", createdCP);
 
         // shop
-
-
+        ItemCode_t itemCode = getShoppingItem(items, gameState);
+        
+        switch (itemCode)
+        {
+        case ITEM_NOTHING:
+            break;
+        case ITEM_MOUSE_TOY:
+            printf("장난감 쥐를 구매했습니다.\n");
+            gameState.cutePoint -= 1;
+            items.mouseToy = 1;
+            break;
+        case ITEM_POINTER_TOY:
+            printf("레이저 포인터를 구매했습니다.\n");
+            gameState.cutePoint -= 2;
+            items.pointerToy = 1;
+            break;
+        case ITEM_SCRATCHER:
+        {
+            printf("스크래처를 구매했습니다.\n");
+            gameState.cutePoint -= 4;
+            int tmpPos = 0;
+            do {
+                tmpPos = getRandomRidePosition();
+            } while (tmpPos != items.catTower);
+            items.scratcher = tmpPos;
+            break;
+        }
+        case ITEM_CAT_TOWER:
+        {
+            printf("캣타워를 구매했습니다.\n");
+            gameState.cutePoint -= 6;
+            int tmpPos = 0;
+            do {
+                tmpPos = getRandomRidePosition();
+            } while (tmpPos != items.scratcher);
+            items.catTower = tmpPos;
+            break;
+        }
+        default:
+            break;
+        }
+        printf("보유 CP %d 포인트\n", gameState.cutePoint);
 
         reset(DELAY_TURN);
     }
@@ -389,13 +430,107 @@ InteractionCode_t getInteraction(Items_t items)
     do {
         printf(">> ");
         scanf_s("%d", &userInteraction);
-    } while (!(userInteraction >= 0 && userInteraction <= interactionCount));
+    } while (userInteraction != INTERACTION_NOTHING
+        && userInteraction != INTERACTION_SCRATCH
+        && userInteraction != INTERACTION_MOUSE_TOY
+        && userInteraction != INTERACTION_POINTER_TOY);
 
     // if userInteraction is 2 and no mouse Toy, it means 2 is pointer toy
     if (userInteraction == 2 && !items.mouseToy)
         return INTERACTION_POINTER_TOY;
 
-    return userInteraction;
+    return (InteractionCode_t)userInteraction;
+}
+
+ItemCode_t getShoppingItem(Items_t items, GameState_t gameState)
+{
+    int shoppingItemCode;
+    printf("상점에서 물건을 살 수 있습니다.\n");
+    printf("어떤 물건을 구매할까요?\n");
+
+    printf(" 0. 아무 것도 사지 않는다.");
+    printf(" 1. 장난감 쥐 : 1 CP");
+    if (items.mouseToy)
+        printf(" (품절)\n");
+    else
+        printf("\n");
+
+    printf(" 2. 레이저 포인트 : 2 CP");
+    if (items.pointerToy)
+        printf(" (품절)\n");
+    else
+        printf("\n");
+
+    printf(" 3. 스크래처: 4cp");
+    if (items.scratcher)
+        printf(" (품절)\n");
+    else
+        printf("\n");
+
+    printf(" 4. 캣 타워: 6cp");
+    if (items.catTower)
+        printf(" (품절)\n");
+    else
+        printf("\n");
+
+    do {
+        printf(">> ");
+        scanf_s("%d", &shoppingItemCode);
+    } while (shoppingItemCode != ITEM_NOTHING
+        && shoppingItemCode != ITEM_MOUSE_TOY
+        && shoppingItemCode != ITEM_POINTER_TOY
+        && shoppingItemCode != ITEM_SCRATCHER
+        && shoppingItemCode != ITEM_CAT_TOWER);
+
+    switch (shoppingItemCode)
+    {
+    case ITEM_NOTHING:
+        break;
+    case ITEM_MOUSE_TOY:
+        if (items.mouseToy) {
+            printf("장남감쥐를 이미 구매했습니다.\n");
+            return ITEM_NOTHING;
+        }
+        else if (gameState.cutePoint < 1) {
+            printf("CP가 부족합니다.\n");
+            return ITEM_NOTHING;
+        }
+        break;
+    case ITEM_POINTER_TOY:
+        if (items.pointerToy) {
+            printf("레이저 포인터를 이미 구매했습니다.\n");
+            return ITEM_NOTHING;
+        }
+        else if (gameState.cutePoint < 2) {
+            printf("CP가 부족합니다.\n");
+            return ITEM_NOTHING;
+        }
+        break;
+    case ITEM_SCRATCHER:
+        if (items.scratcher) {
+            printf("스크래처를 이미 구매했습니다.\n");
+            return ITEM_NOTHING;
+        }
+        else if (gameState.cutePoint < 4) {
+            printf("CP가 부족합니다.\n");
+            return ITEM_NOTHING;
+        }
+        break;
+    case ITEM_CAT_TOWER:
+        if (items.catTower) {
+            printf("캣 타워를 이미 구매했습니다.\n");
+            return ITEM_NOTHING;
+        }
+        else if (gameState.cutePoint < 6) {
+            printf("CP가 부족합니다.\n");
+            return ITEM_NOTHING;
+        }
+        break;
+    default:
+        break;
+    }
+
+    return (ItemCode_t)shoppingItemCode;
 }
 
 int rollDice(void)
@@ -451,5 +586,10 @@ void showRoom(CatPositions_t catPositions, Items_t items) {
 
 SoupCode_t makeSoup(void)
 {
-    return rand() % 3 + 1;
+    return (SoupCode_t)(rand() % 3 + 1);
+}
+
+int getRandomRidePosition(void)
+{
+    return rand() % (ROOM_WIDTH - 4)+(1 + HME_POS);
 }
