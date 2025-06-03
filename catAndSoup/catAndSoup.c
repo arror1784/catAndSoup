@@ -255,12 +255,31 @@ void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int c
 int getInteraction(int hasMouseToy, int hasPointerToy)
 {
     int userInteraction = -1;
-    printf("어떤 상호작용을 하시겠습니까? 0. 아무것도 하지 않음 1. 긁어 주기\n");
+    int interactionCount = -1;
+
+    printf("어떤 상호작용을 하시겠습니까?\n");
+
+    interactionCount += 1;
+    printf("%d. 아무것도 하지 않음\n", interactionCount);
+    interactionCount += 1;
+    printf("%d. 긁어 주기\n", interactionCount);
+    if (hasMouseToy) {
+        interactionCount += 1;
+        printf("%d. 장난감 쥐로 놀아주기\n", interactionCount);
+    }
+    if (hasPointerToy) {
+        interactionCount += 1;
+        printf("%d. 레이저 포인터로 놀아주기\n", interactionCount);
+    }
 
     do {
         printf(">> ");
         scanf_s("%d", &userInteraction);
-    } while (userInteraction != 0 && userInteraction != 1);
+    } while (!(userInteraction >= 0 && userInteraction <= interactionCount));
+
+    // if userInteraction is 2 and no mouse Toy, it means 2 is pointer toy
+    if (userInteraction == 2 && !hasMouseToy)
+        return INTERACTION_POINTER_TOY;
 
     return userInteraction;
 }
