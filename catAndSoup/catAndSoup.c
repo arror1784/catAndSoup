@@ -19,8 +19,10 @@
 #define MUSHROOM_SOUP       2
 #define BROCCOLI_SOUP       3
 
-#define INTERACTION_NOTHING       0
-#define INTERACTION_SCRATCH      1
+#define INTERACTION_NOTHING          0
+#define INTERACTION_SCRATCH          1
+#define INTERACTION_MOUSE_TOY        2
+#define INTERACTION_POINTER_TOY      3
 
 #define DELAY_STEP 500
 #define DELAY_INTRO 1000
@@ -50,6 +52,9 @@ int main()
     int catPreviousPos = catPos;
     int scratcherPos = -1;
     int catTowerPos = -1;
+
+    int pointerToy = 0;
+    int mouseToy = 0;
 
     srand((unsigned int)time(NULL));
 
@@ -151,13 +156,18 @@ int main()
         // doInteraction
         int interaction = getInteraction(scratcherPos, catTowerPos);
         if (interaction == INTERACTION_NOTHING) {
+            int catPrevEmotion = catEmotion;
+            catEmotion -= 1;
+            if (catEmotion < EMOTION_MIN)
+                catEmotion = EMOTION_MIN;
             printf("아무것도 하지 않습니다.\n");
-            printf("4 / 6의 확률로 친밀도가 떨어집니다.\n");
+            printf("%s의 기분이 나빠졌습니다: %d -> %d\n", catName, catPrevEmotion, catEmotion);
+            printf("5 / 6의 확률로 친밀도가 떨어집니다.\n");
             int rollValue = rollDice();
-            if (rollValue <= 4) {
+            if (rollValue <= 5) {
                 if (intimacy > INTIMACY_MIN)
-                    intimacy--;
-                printf("친밀도가 떨어집니다.\n");
+                    intimacy -= 1;
+                printf("집사와의 관계가 나빠집니다.\n");
                 printf("현재 친밀도 : %d\n", intimacy);
             }
             else {
@@ -166,13 +176,54 @@ int main()
             }
         }
         else if (interaction == INTERACTION_SCRATCH) {
-            printf("쫀떡의 턱을 긁어주었습니다.\n");
+            printf("%s의 턱을 긁어주었습니다.\n",catName);
+            printf("%s의 기분이 그대로입니다: %d\n", catName, catEmotion);
             printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
             int rollValue = rollDice();
             if (rollValue > 4) {
                 if (intimacy < INTIMACY_MAX)
                     intimacy++;
-                printf("친밀도가 높아집니다.\n");
+                printf("집사와의 관계가 좋아집니다.\n");
+                printf("현재 친밀도 : %d\n", intimacy);
+            }
+            else {
+                printf("친밀도는 그대로입니다.\n");
+                printf("현재 친밀도 : %d\n", intimacy);
+            }
+        }
+        else if (interaction == INTERACTION_MOUSE_TOY) {
+            int catPrevEmotion = catEmotion;
+            catEmotion += 1;
+            if (catEmotion > EMOTION_MAX)
+                catEmotion = EMOTION_MAX;
+            printf("장남감 쥐로 %s와 놀아 주었습니다.\n", catName);
+            printf("%s의 기분이 조금 좋아졌습니다: %d -> %d\n", catName, catPrevEmotion, catEmotion);
+            printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
+            int rollValue = rollDice();
+            if (rollValue >= 4) {
+                if (intimacy < INTIMACY_MAX)
+                    intimacy++;
+                printf("집사와의 관계가 좋아집니다.\n");
+                printf("현재 친밀도 : %d\n", intimacy);
+            }
+            else {
+                printf("친밀도는 그대로입니다.\n");
+                printf("현재 친밀도 : %d\n", intimacy);
+            }
+        }
+        else if (interaction == INTERACTION_POINTER_TOY) {
+            int catPrevEmotion = catEmotion;
+            catEmotion += 2;
+            if (catEmotion > EMOTION_MAX)
+                catEmotion = EMOTION_MAX;
+            printf("레이저 포인터로 %s와 신나게 놀아 주었습니다.\n", catName);
+            printf("%s의 기분이 꽤 좋아졌습니다: %d -> %d\n", catName, catPrevEmotion, catEmotion);
+            printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
+            int rollValue = rollDice();
+            if (rollValue >= 2) {
+                if (intimacy < INTIMACY_MAX)
+                    intimacy++;
+                printf("집사와의 관계가 좋아집니다.\n");
                 printf("현재 친밀도 : %d\n", intimacy);
             }
             else {
