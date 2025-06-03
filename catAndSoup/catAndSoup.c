@@ -36,7 +36,7 @@ void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int c
 int getInteraction(int hasMouseToy, int hasPointerToy);
 int rollDice(void); // return 1~6
 void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos);
-int checkCatPositionAndMakeSoup(int catPos); // return -1 is nothing, return 0 is home, return 1,2,3 is potato, mushroom, broccoli
+int makeSoup(void); // return 1,2,3 is potato, mushroom, broccoli
 
 int main()
 {
@@ -114,18 +114,33 @@ int main()
         }
         mSleep(DELAY_STEP);
 
-        // check to make soup
-        int checkResult = checkCatPositionAndMakeSoup(catPos);
-
-        if (checkResult == 0) {
-            printf("%s은(는) 자신의 집에서 편안함을 느낍니다.\n", catName);
+        // do action
+        if (catPos == HME_POS && catPreviousPos == HME_POS) {
+            printf("%s은(는) 집에서 기분좋게 휴식을 취했습니다.\n", catName);
         }
-        else if (checkResult > 0) {
-            soupCount++;
+        else if(catPos == BWL_PO){
+            int soup = makeSoup();
+            soupCount += 1;
             printf("%s이(가) %s를 만들었습니다!\n", catName,
-                checkResult == POTATO_SOUP ? "감자 수프" :
-                checkResult == MUSHROOM_SOUP ? "양송이 수프" : "브로콜리 수프");
+                soup == POTATO_SOUP ? "감자 수프" :
+                soup == MUSHROOM_SOUP ? "양송이 수프" : "브로콜리 수프");
             printf("현재까지 만든 수프: %d개\n", soupCount);
+        }
+        else if (catPos == scratcherPos) {
+            int catPrevEmotion = catEmotion;
+            catEmotion += 1;
+            if (catEmotion > EMOTION_MAX)
+                catEmotion = EMOTION_MAX;
+            printf("%s은(는) 스크래처를 긁고 놀았습니다.\n", catName);
+            printf("기분이 제법 좋아졌습니다. %d -> %d\n", catPrevEmotion, catEmotion);
+        }
+        else if (catPos == catTowerPos) {
+            int catPrevEmotion = catEmotion;
+            catEmotion += 2;
+            if (catEmotion > EMOTION_MAX)
+                catEmotion = EMOTION_MAX;
+            printf("%s은(는) 캣타워를 뛰어다닙니다.\n", catName);
+            printf("기분이 제법 좋아졌습니다. %d -> %d\n", catPrevEmotion, catEmotion);
         }
         mSleep(DELAY_STEP);
 
@@ -301,12 +316,7 @@ void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos
     printf("\n\n");
 }
 
-int checkCatPositionAndMakeSoup(int catPos)
+int makeSoup(void)
 {
-    if (catPos == BWL_PO)
-        return rand() % 3 + 1;
-    else if (catPos == HME_POS)
-        return 0;
-    else
-        return -1;
+    return rand() % 3 + 1;
 }
