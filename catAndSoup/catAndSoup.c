@@ -88,16 +88,16 @@ int main()
                 int absDistanceToScracher = abs(distanceToScracher);
                 int absDistanceToCatTower = abs(distanceToCatTower);
 
-                if (absDistanceToScracher <= absDistanceToCatTower) {
-                    if (distanceToScracher < 0)
-                        catPos--;
-                    else if (distanceToScracher > 0)
-                        catPos++;
-                }
-                else {
+                if (absDistanceToCatTower <= absDistanceToScracher) {
                     if (distanceToCatTower < 0)
                         catPos--;
                     else if (distanceToCatTower > 0)
+                        catPos++;
+                }
+                else {
+                    if (distanceToScracher < 0)
+                        catPos--;
+                    else if (distanceToScracher > 0)
                         catPos++;
                 }
             }
