@@ -118,7 +118,7 @@ int main()
             break;
         case 1:
         {
-            if (items.scratcher != -1 && items.catTower - 1) {
+            if (!items.scratcher && !items.catTower) {
                 printf("%s은(는) 놀 거리가 없어서 기분이 매우 나빠집니다.\n", catName);
                 if (gameState.catEmotion > EMOTION_MIN)
                     gameState.catEmotion -= 1;
