@@ -555,9 +555,9 @@ void showRoom(CatPositions_t catPositions, Items_t items) {
             printf("H");
         else if (i == BWL_PO)
             printf("B");
-        else if (i == items.scratcher)
+        else if (i == items.scratcher && items.scratcher != 0)
             printf("S");
-        else if (i == items.catTower)
+        else if (i == items.catTower && items.catTower != 0)
             printf("T");
         else if (i == 0 || i == ROOM_WIDTH - 1)
             printf("#");
