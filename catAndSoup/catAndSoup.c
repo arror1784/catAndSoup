@@ -102,11 +102,8 @@ int main()
         mSleep(DELAY_STEP);
 
         // feel bad
-        printf("주사위 눈이 %d이하면 그냥 기분이 나빠집니다. 고양이니까?\n", 6 - gameState.intimacy);
-        printf("주사위를 굴립니다. 또르르...\n");
- 
+        printf("주사위 눈이 %d이하면 그냥 기분이 나빠집니다. 고양이니까?\n", 6 - gameState.intimacy); 
         int rollValue = rollDice();
-        printf("%d이(가) 나왔습니다.\n",rollValue);
         if (rollValue <= (6 - gameState.intimacy)) {
             int catPrevEmotion = gameState.catEmotion;
             if (gameState.catEmotion > EMOTION_MIN)
@@ -120,9 +117,6 @@ int main()
         
 
         // cat move
-        printf("%s 이동: 집사와 친밀할수록 냄비 쪽으로 갈 확률이 높아집니다.\n", catName);
-        printf("주사위 눈이 %d 이상이면 냄비 쪽으로 이동합니다.\n", 6 - gameState.intimacy);
-
         switch (gameState.catEmotion)
         {
         case 0:
@@ -300,7 +294,7 @@ int main()
         int createdCP = max(0, gameState.catEmotion - 1) + gameState.intimacy;
         printf("%s의 기분(%d~%d): %d\n", catName, EMOTION_MIN, EMOTION_MAX, gameState.catEmotion);
         printf("집사와의 관계(%d~%d): %d\n", INTIMACY_MIN, INTIMACY_MAX, gameState.intimacy);
-        printf("%s의 기분과 친밀도에 따라서 CP가 %d 포인트 생사되었습니다.\n", catName, createdCP);
+        printf("%s의 기분과 친밀도에 따라서 CP가 %d 포인트 생성되었습니다.\n", catName, createdCP);
         printf("보유 CP: %d 포인트\n", createdCP);
 
         // shop
