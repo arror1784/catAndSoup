@@ -30,7 +30,10 @@ void reset(int milliSec);
 void mSleep(int milliSec);
 void introAndGetName(char* catName, int catNameLength);
 void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int catEmotion);
-int getInteraction(int hasScracher, int hasCatTower); //return 0 or 1 for valid input, return -1 for invalid input
+
+// return 0 noting, 1 scratch, 2 mouse toy, 3 pointer toy 
+// hasMouseToy, hasPointertoy 0 means NO
+int getInteraction(int hasMouseToy, int hasPointerToy);
 int rollDice(void); // return 1~6
 void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos);
 int checkCatPositionAndMakeSoup(int catPos); // return -1 is nothing, return 0 is home, return 1,2,3 is potato, mushroom, broccoli
@@ -234,7 +237,7 @@ void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int c
     printf("==================================================\n\n");
 }
 
-int getInteraction(int hasScracher, int hasCatTower)
+int getInteraction(int hasMouseToy, int hasPointerToy)
 {
     int userInteraction = -1;
     printf("어떤 상호작용을 하시겠습니까? 0. 아무것도 하지 않음 1. 긁어 주기\n");
