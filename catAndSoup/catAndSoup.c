@@ -62,15 +62,33 @@ int main()
     reset(DELAY_INTRO);
 
     while (1) {
+        catPreviousPos = catPos;
+
         // show status
         showStatus(catName, intimacy, soupCount, cutePoint, catEmotion);
         mSleep(DELAY_STEP);
 
-        // cat move 
+        // feel bad
+        printf("주사위 눈이 %d이하면 그냥 기분이 나빠집니다. 고양이니까?\n", 6 - intimacy);
+        printf("주사위를 굴립니다. 또르르...\n");
+ 
+        int rollValue = rollDice();
+        printf("%d이(가) 나왔습니다.\n",rollValue);
+        if (rollValue <= (6 - intimacy)) {
+            int catPrevEmotion = catEmotion;
+            if (catEmotion > EMOTION_MIN)
+                catEmotion -= 1;
+            printf("%s의 기분이 나빠집니다: %d -> %d\n", catPrevEmotion, catEmotion);
+        }
+        else {
+            printf("다행히 %s의 기분이 나빠지지 않았습니다.\n",catName);
+        }
+        printf("\n");
+        
+
+        // cat move
         printf("%s 이동: 집사와 친밀할수록 냄비 쪽으로 갈 확률이 높아집니다.\n", catName);
         printf("주사위 눈이 %d 이상이면 냄비 쪽으로 이동합니다.\n", 6 - intimacy);
-
-        catPreviousPos = catPos;
 
         switch (catEmotion)
         {
@@ -118,6 +136,7 @@ int main()
             break;
         }
         mSleep(DELAY_STEP);
+
 
         // do action
         if (catPos == HME_POS && catPreviousPos == HME_POS) {
