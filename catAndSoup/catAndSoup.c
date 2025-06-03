@@ -11,69 +11,82 @@
 #define INTIMACY_DEFAULT    2
 #define INTIMACY_MAX        4
 
-#define EMOTION_MIN        0
-#define EMOTION_DEFAULT    3
-#define EMOTION_MAX        3
-
-#define POTATO_SOUP         1
-#define MUSHROOM_SOUP       2
-#define BROCCOLI_SOUP       3
-
-#define INTERACTION_NOTHING          0
-#define INTERACTION_SCRATCH          1
-#define INTERACTION_MOUSE_TOY        2
-#define INTERACTION_POINTER_TOY      3
+#define EMOTION_MIN         0
+#define EMOTION_DEFAULT     3
+#define EMOTION_MAX         3
 
 #define DELAY_STEP 500
 #define DELAY_INTRO 1000
 #define DELAY_TURN 2500
 
+typedef enum {
+    SOUP_NOTHING = 0,
+    SOUP_POTATO = 1,
+    SOUP_MUSHROOM = 2,
+    SOUP_BROCCOLI = 3,
+}SoupCode_t;
+
+typedef enum {
+    INTERACTION_NOTHING = 0,
+    INTERACTION_SCRATCH = 1,
+    INTERACTION_MOUSE_TOY = 2,
+    INTERACTION_POINTER_TOY = 3,
+}InteractionCode_t;
+
+typedef enum{
+    ITEM_NOTHING = 0,
+    ITEM_CAT_TOWER = 1,
+    ITEM_SCRATCHER = 2,
+    ITEM_MOUSE_TOY = 3,
+    ITEM_POINTER_TOY = 4,
+}ItemCode_t;
+
+// catTower, scratcher 0 means there are no catToer,no scratcher
 typedef struct {
     int catTower;
     int scratcher;
     int mouseToy;
     int pointerToy;
-}Items;
+}Items_t;
 
 typedef struct {
     int catPos;
     int catPreviousPos;
-}CatPositions;
+}CatPositions_t;
 
 typedef struct {
     int intimacy;
     int soupCount;
     int cutePoint;
     int catEmotion;
-}GameState;
-
+}GameState_t;
 
 void reset(int milliSec);
 void mSleep(int milliSec);
 void introAndGetName(char* catName, int catNameLength);
-void showStatus(char* catName, GameState gameState);
+void showStatus(char* catName, GameState_t gameState);
 
 // return 0 noting, 1 scratch, 2 mouse toy, 3 pointer toy 
-// hasMouseToy, hasPointertoy 0 means NO
-int getInteraction(Items items);
+InteractionCode_t getInteraction(Items_t items);
+ItemCode_t shop(Items_t items);
 int rollDice(void); // return 1~6
-void showRoom(CatPositions catPositions, Items items);
-int makeSoup(void); // return 1,2,3 is potato, mushroom, broccoli
+void showRoom(CatPositions_t catPositions, Items_t items);
+SoupCode_t makeSoup(void); // return 1,2,3 is potato, mushroom, broccoli
 
 int main()
 {
     char catName[100] = { 0 };
-    GameState gameState = { 0 };
+    GameState_t gameState = { 0 };
     gameState.intimacy = INTIMACY_DEFAULT;
     gameState.soupCount = 0;
     gameState.cutePoint = 0;
     gameState.catEmotion = EMOTION_DEFAULT;
     
-    CatPositions catPositions = { 0 };
+    CatPositions_t catPositions = { 0 };
     catPositions.catPos = HME_POS;
     catPositions.catPreviousPos = HME_POS;
 
-    Items items = { 0 };
+    Items_t items = { 0 };
 
     srand((unsigned int)time(NULL));
 
@@ -162,11 +175,11 @@ int main()
             printf("%s은(는) 집에서 기분좋게 휴식을 취했습니다.\n", catName);
         }
         else if(catPositions.catPos == BWL_PO){
-            int soup = makeSoup();
+            SoupCode_t soup = makeSoup();
             gameState.soupCount += 1;
             printf("%s이(가) %s를 만들었습니다!\n", catName,
-                soup == POTATO_SOUP ? "감자 수프" :
-                soup == MUSHROOM_SOUP ? "양송이 수프" : "브로콜리 수프");
+                soup == SOUP_POTATO ? "감자 수프" :
+                soup == SOUP_MUSHROOM ? "양송이 수프" : "브로콜리 수프");
             printf("현재까지 만든 수프: %d개\n", gameState.soupCount);
         }
         else if (catPositions.catPos == items.scratcher) {
@@ -192,7 +205,7 @@ int main()
         mSleep(DELAY_STEP);
 
         // doInteraction
-        int interaction = getInteraction(items);
+        InteractionCode_t interaction = getInteraction(items);
         if (interaction == INTERACTION_NOTHING) {
             int catPrevEmotion = gameState.catEmotion;
             gameState.catEmotion -= 1;
@@ -306,7 +319,7 @@ void introAndGetName(char* catName, int catNameLength) {
     printf("야옹이의 이름은 %s입니다.\n\n", catName);
 }
 
-void showStatus(char* catName, GameState gameState)
+void showStatus(char* catName, GameState_t gameState)
 {
     printf("==================== 현재 상태 ===================\n");
     printf("현재까지 만든 수프 : %d개\n", gameState.soupCount);
@@ -353,7 +366,7 @@ void showStatus(char* catName, GameState gameState)
     printf("==================================================\n\n");
 }
 
-int getInteraction(Items items)
+InteractionCode_t getInteraction(Items_t items)
 {
     int userInteraction = -1;
     int interactionCount = -1;
@@ -395,7 +408,7 @@ int rollDice(void)
     return random;
 }
 
-void showRoom(CatPositions catPositions, Items items) {
+void showRoom(CatPositions_t catPositions, Items_t items) {
     printf("\n");
     for (int i = 0; i < ROOM_WIDTH; i++)
         printf("#");
@@ -436,7 +449,7 @@ void showRoom(CatPositions catPositions, Items items) {
     printf("\n\n");
 }
 
-int makeSoup(void)
+SoupCode_t makeSoup(void)
 {
     return rand() % 3 + 1;
 }
