@@ -31,7 +31,7 @@ void mSleep(int milliSec);
 void introAndGetName(char* catName, int catNameLength);
 void showStatus(char* catName, int intimacy, int soupCount, int cutePoint, int catEmotion);
 int getInteraction(int hasScracher, int hasCatTower); //return 0 or 1 for valid input, return -1 for invalid input
-int rollDice(); // return 1~6
+int rollDice(void); // return 1~6
 void showRoom(const int catPos, const int catPreviousPos, const int scratcherPos, const int catTowerPos);
 int checkCatPositionAndMakeSoup(int catPos); // return -1 is nothing, return 0 is home, return 1,2,3 is potato, mushroom, broccoli
 
@@ -247,7 +247,7 @@ int getInteraction(int hasScracher, int hasCatTower)
     return userInteraction;
 }
 
-int rollDice()
+int rollDice(void)
 {
     int random = rand() % 6 + 1;
 
