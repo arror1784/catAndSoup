@@ -207,7 +207,10 @@ int main()
 
         // doInteraction
         InteractionCode_t interaction = getInteraction(items);
-        if (interaction == INTERACTION_NOTHING) {
+        switch (interaction)
+        {
+        case INTERACTION_NOTHING:
+        {
             int catPrevEmotion = gameState.catEmotion;
             gameState.catEmotion -= 1;
             if (gameState.catEmotion < EMOTION_MIN)
@@ -227,8 +230,9 @@ int main()
                 printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
         }
-        else if (interaction == INTERACTION_SCRATCH) {
-            printf("%s의 턱을 긁어주었습니다.\n",catName);
+        case INTERACTION_SCRATCH:
+        {
+            printf("%s의 턱을 긁어주었습니다.\n", catName);
             printf("%s의 기분이 그대로입니다: %d\n", catName, gameState.catEmotion);
             printf("2 / 6의 확률로 친밀도가 높아집니다.\n");
             int rollValue = rollDice();
@@ -242,8 +246,10 @@ int main()
                 printf("친밀도는 그대로입니다.\n");
                 printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
+            break;
         }
-        else if (interaction == INTERACTION_MOUSE_TOY) {
+        case INTERACTION_MOUSE_TOY:
+        {
             int catPrevEmotion = gameState.catEmotion;
             gameState.catEmotion += 1;
             if (gameState.catEmotion > EMOTION_MAX)
@@ -262,8 +268,10 @@ int main()
                 printf("친밀도는 그대로입니다.\n");
                 printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
+            break;
         }
-        else if (interaction == INTERACTION_POINTER_TOY) {
+        case INTERACTION_POINTER_TOY:
+        {
             int catPrevEmotion = gameState.catEmotion;
             gameState.catEmotion += 2;
             if (gameState.catEmotion > EMOTION_MAX)
@@ -282,6 +290,10 @@ int main()
                 printf("친밀도는 그대로입니다.\n");
                 printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
+            break;
+        }
+        default:
+            break;
         }
 
         // CP create
