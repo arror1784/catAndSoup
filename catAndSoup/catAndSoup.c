@@ -132,8 +132,8 @@ int main()
                     gameState.catEmotion -= 1;
                 break;
             } else {
-                int distanceToScracher = items.scratcher == -1 ? INT_MAX : items.scratcher - catPositions.catPos;
-                int distanceToCatTower = items.catTower == -1 ? INT_MAX : items.catTower - catPositions.catPos;
+                int distanceToScracher = !items.scratcher ? INT_MAX : items.scratcher - catPositions.catPos;
+                int distanceToCatTower = !items.catTower ? INT_MAX : items.catTower - catPositions.catPos;
 
                 int absDistanceToScracher = abs(distanceToScracher);
                 int absDistanceToCatTower = abs(distanceToCatTower);
