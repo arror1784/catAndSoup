@@ -321,7 +321,7 @@ int main()
             int tmpPos = 0;
             do {
                 tmpPos = getRandomRidePosition();
-            } while (tmpPos != items.catTower);
+            } while (tmpPos == items.catTower);
             items.scratcher = tmpPos;
             break;
         }
@@ -332,7 +332,7 @@ int main()
             int tmpPos = 0;
             do {
                 tmpPos = getRandomRidePosition();
-            } while (tmpPos != items.scratcher);
+            } while (tmpPos == items.scratcher);
             items.catTower = tmpPos;
             break;
         }
