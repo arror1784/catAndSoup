@@ -292,10 +292,13 @@ int main()
 
         // CP create
         int createdCP = max(0, gameState.catEmotion - 1) + gameState.intimacy;
+        gameState.cutePoint += createdCP;
         printf("%s의 기분(%d~%d): %d\n", catName, EMOTION_MIN, EMOTION_MAX, gameState.catEmotion);
         printf("집사와의 관계(%d~%d): %d\n", INTIMACY_MIN, INTIMACY_MAX, gameState.intimacy);
         printf("%s의 기분과 친밀도에 따라서 CP가 %d 포인트 생성되었습니다.\n", catName, createdCP);
-        printf("보유 CP: %d 포인트\n", createdCP);
+        printf("보유 CP: %d 포인트\n", gameState.cutePoint);
+        printf("\n");
+        mSleep(DELAY_STEP);
 
         // shop
         ItemCode_t itemCode = getShoppingItem(items, gameState);
