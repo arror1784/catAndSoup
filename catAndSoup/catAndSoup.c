@@ -165,7 +165,11 @@ int main()
 
         // do action
         if (catPositions.catPos == HME_POS && catPositions.catPreviousPos == HME_POS) {
-            printf("%s은(는) 집에서 기분좋게 휴식을 취했습니다.\n", catName);
+            int catPrevEmotion = gameState.catEmotion;
+            gameState.catEmotion += 1;
+            if (gameState.catEmotion > EMOTION_MAX)
+                gameState.catEmotion = EMOTION_MAX;
+            printf("%s은(는) 집에서 기분좋게 휴식을 취했습니다. %d -> %d\n", catName, catPrevEmotion, gameState.catEmotion);
         }
         else if(catPositions.catPos == BWL_PO){
             SoupCode_t soup = makeSoup();
