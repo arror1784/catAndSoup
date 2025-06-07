@@ -112,7 +112,7 @@ int main()
             printf("다행히 %s의 기분이 나빠지지 않았습니다.\n",catName);
         }
         printf("\n");
-        
+        mSleep(DELAY_STEP);
 
         // cat move
         switch (gameState.catEmotion)
@@ -137,12 +137,14 @@ int main()
                 int absDistanceToCatTower = abs(distanceToCatTower);
 
                 if (absDistanceToCatTower <= absDistanceToScracher) {
+                    printf("%s은(는) 심심해서 캣타워 쪽으로 이동합니다.\n", catName);
                     if (distanceToCatTower < 0)
                         catPositions.catPos--;
                     else if (distanceToCatTower > 0)
                         catPositions.catPos++;
                 }
                 else {
+                    printf("%s은(는) 심심해서 스크래처 쪽으로 이동합니다.\n", catName);
                     if (distanceToScracher < 0)
                         catPositions.catPos--;
                     else if (distanceToScracher > 0)
@@ -160,8 +162,8 @@ int main()
                 catPositions.catPos++;
             break;
         }
+        printf("\n");
         mSleep(DELAY_STEP);
-
 
         // do action
         if (catPositions.catPos == HME_POS && catPositions.catPreviousPos == HME_POS) {
@@ -185,7 +187,7 @@ int main()
             if (gameState.catEmotion > EMOTION_MAX)
                 gameState.catEmotion = EMOTION_MAX;
             printf("%s은(는) 스크래처를 긁고 놀았습니다.\n", catName);
-            printf("기분이 제법 좋아졌습니다. %d -> %d\n", catPrevEmotion, gameState.catEmotion);
+            printf("기분이 조금 좋아졌습니다. %d -> %d\n", catPrevEmotion, gameState.catEmotion);
         }
         else if (catPositions.catPos == items.catTower) {
             int catPrevEmotion = gameState.catEmotion;
@@ -195,10 +197,12 @@ int main()
             printf("%s은(는) 캣타워를 뛰어다닙니다.\n", catName);
             printf("기분이 제법 좋아졌습니다. %d -> %d\n", catPrevEmotion, gameState.catEmotion);
         }
+        printf("\n");
         mSleep(DELAY_STEP);
 
         // showRoom
         showRoom(catPositions, items);
+        printf("\n");
         mSleep(DELAY_STEP);
 
         // doInteraction
@@ -225,6 +229,7 @@ int main()
                 printf("다행히 친밀도가 떨어지지 않았습니다.\n");
                 printf("현재 친밀도 : %d\n", gameState.intimacy);
             }
+            break;
         }
         case INTERACTION_SCRATCH:
         {
@@ -462,7 +467,7 @@ ItemCode_t getShoppingItem(Items_t items, GameState_t gameState)
     printf("상점에서 물건을 살 수 있습니다.\n");
     printf("어떤 물건을 구매할까요?\n");
 
-    printf(" 0. 아무 것도 사지 않는다.");
+    printf(" 0. 아무 것도 사지 않는다.\n");
     printf(" 1. 장난감 쥐 : 1 CP");
     if (items.mouseToy)
         printf(" (품절)\n");
@@ -558,7 +563,7 @@ int rollDice(void)
 }
 
 void showRoom(CatPositions_t catPositions, Items_t items) {
-    printf("\n");
+
     for (int i = 0; i < ROOM_WIDTH; i++)
         printf("#");
     printf("\n");
@@ -595,7 +600,7 @@ void showRoom(CatPositions_t catPositions, Items_t items) {
 
     for (int i = 0; i < ROOM_WIDTH; i++)
         printf("#");
-    printf("\n\n");
+    printf("\n");
 }
 
 SoupCode_t makeSoup(void)
