@@ -291,6 +291,8 @@ int main()
         default:
             break;
         }
+        printf("\n");
+        mSleep(DELAY_STEP);
 
         // CP create
         int createdCP = max(0, gameState.catEmotion - 1) + gameState.intimacy;
