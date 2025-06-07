@@ -35,10 +35,10 @@ typedef enum {
 
 typedef enum{
     ITEM_NOTHING = 0,
-    ITEM_CAT_TOWER = 1,
-    ITEM_SCRATCHER = 2,
-    ITEM_MOUSE_TOY = 3,
-    ITEM_POINTER_TOY = 4,
+    ITEM_MOUSE_TOY = 1,
+    ITEM_POINTER_TOY = 2,
+    ITEM_SCRATCHER = 3,
+    ITEM_CAT_TOWER = 4,
 }ItemCode_t;
 
 // catTower, scratcher 0 means there are no catToer,no scratcher
