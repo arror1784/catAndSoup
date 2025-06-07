@@ -85,7 +85,7 @@ int main()
     
     CatPositions_t catPositions = { 0 };
     catPositions.catPos = HME_POS;
-    catPositions.catPreviousPos = HME_POS;
+    catPositions.catPreviousPos = -1;
 
     Items_t items = { 0 };
 
@@ -95,8 +95,6 @@ int main()
     reset(DELAY_INTRO);
 
     while (1) {
-        catPositions.catPreviousPos = catPositions.catPos;
-
         // show status
         showStatus(catName, gameState);
         mSleep(DELAY_STEP);
@@ -121,8 +119,8 @@ int main()
         {
         case 0:
             printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.\n", catName);
-            if (catPositions.catPos < BWL_PO)
-                catPositions.catPos++;
+            if (catPositions.catPos > HME_POS)
+                catPositions.catPos--;
             break;
         case 1:
         {
@@ -344,6 +342,7 @@ int main()
         }
         printf("보유 CP %d 포인트\n", gameState.cutePoint);
 
+        catPositions.catPreviousPos = catPositions.catPos;
         reset(DELAY_TURN);
     }
 }
