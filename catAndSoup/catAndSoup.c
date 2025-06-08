@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <Windows.h>
+#include <conio.h>
 
 #define ROOM_WIDTH          10
 #define HME_POS             1
@@ -18,6 +19,12 @@
 #define DELAY_STEP 500
 #define DELAY_INTRO 1000
 #define DELAY_TURN 2500
+
+#define MAZE_WIDTH 31
+#define MAZE_HEIGHT 21
+
+#define MAZE_START_X 1
+#define MAZE_START_Y 1
 
 typedef enum {
     SOUP_NOTHING = 0,
@@ -41,6 +48,19 @@ typedef enum{
     ITEM_CAT_TOWER = 4,
 }ItemCode_t;
 
+typedef enum {
+    MAZE_DIRECTION_UP = 0,
+    MAZE_DIRECTION_DOWN = 1,
+    MAZE_DIRECTION_LEFT = 2,
+    MAZE_DIRECTION_RIGHT = 3,
+}MazeDirection_t;
+
+typedef enum {
+    MAZE_MAP_WALL = 0,
+    MAZE_MAP_EMPTY = 1,
+    MAZE_MAP_VISITED = -1,
+}MazeFlag_t;
+
 // catTower, scratcher 0 means there are no catToer,no scratcher
 typedef struct {
     int catTower;
@@ -59,7 +79,13 @@ typedef struct {
     int soupCount;
     int cutePoint;
     int catEmotion;
+    int turn;
 }GameState_t;
+
+typedef struct {
+    int x;
+    int y;
+}MazePosition_t;
 
 void reset(int milliSec);
 void mSleep(int milliSec);
@@ -74,6 +100,12 @@ void showRoom(CatPositions_t catPositions, Items_t items);
 SoupCode_t makeSoup(void); // return 1,2,3 is potato, mushroom, broccoli
 int getRandomRidePosition(void);
 
+// maze function
+void quest(void);
+void generateMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazePosition_t p,int deps);
+MazePosition_t getDeepestMazePoint(int** map, int mapWidth, int mapHeight, MazePosition_t p);
+int runMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazePosition_t p, MazePosition_t targetPosition);
+
 int main()
 {
     char catName[100] = { 0 };
@@ -82,6 +114,7 @@ int main()
     gameState.soupCount = 0;
     gameState.cutePoint = 0;
     gameState.catEmotion = EMOTION_DEFAULT;
+    gameState.turn = 0;
     
     CatPositions_t catPositions = { 0 };
     catPositions.catPos = HME_POS;
@@ -95,6 +128,8 @@ int main()
     reset(DELAY_INTRO);
 
     while (1) {
+        gameState.turn++;
+
         // show status
         showStatus(catName, gameState);
         mSleep(DELAY_STEP);
@@ -353,7 +388,13 @@ int main()
         }
         printf("보유 CP %d 포인트\n", gameState.cutePoint);
 
+        if (gameState.turn == 3) {
+            reset(0);
+            quest();
+        }
+
         catPositions.catPreviousPos = catPositions.catPos;
+
         reset(DELAY_TURN);
     }
 }
@@ -611,4 +652,157 @@ SoupCode_t makeSoup(void)
 int getRandomRidePosition(void)
 {
     return rand() % (ROOM_WIDTH - 4)+(1 + HME_POS);
+}
+
+void quest(void)
+{
+    int map[MAZE_WIDTH][MAZE_HEIGHT];
+    MazePosition_t startPoint;
+    startPoint.x = MAZE_START_X;
+    startPoint.y = MAZE_START_Y;
+
+    MazePosition_t targetPoint;
+    targetPoint.x = 0;
+    targetPoint.y = 0;
+
+    memset(map, MAZE_MAP_WALL, sizeof(map));
+
+    generateMaze(map, MAZE_WIDTH, MAZE_HEIGHT, startPoint,0);
+    
+    targetPoint = getDeepestMazePoint(map, MAZE_WIDTH, MAZE_HEIGHT, startPoint);
+
+    runMaze(map, MAZE_WIDTH, MAZE_HEIGHT, startPoint, targetPoint);
+    
+    printf("고양이가 츄르를 찾았습니다!!!!");
+
+}
+
+void generateMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazePosition_t p,int deps)
+{
+    static const MazePosition_t MAZE_DIR[4] = { {0,2},{0,-2},{-2,0},{2,0} };
+
+    MazePosition_t digP;
+
+    int dirs[4] = { MAZE_DIRECTION_UP, MAZE_DIRECTION_DOWN, MAZE_DIRECTION_LEFT, MAZE_DIRECTION_RIGHT };
+
+    map[p.x][p.y] = MAZE_MAP_VISITED;
+
+    // 탐색 방향 무작위
+    for (int i = 0; i < 4; i++) {
+        int r = rand() % 4;
+        int temp = dirs[i];
+        dirs[i] = dirs[r];
+        dirs[r] = temp;
+    }
+
+    for (int i = 0; i < 4; i++) {
+
+        digP.x = p.x + MAZE_DIR[dirs[i]].x;
+        digP.y = p.y + MAZE_DIR[dirs[i]].y;
+
+        if (digP.x > 0 && digP.x < mapWidth - 1 && digP.y > 0 && digP.y < mapHeight - 1
+            && map[digP.x][digP.y] == MAZE_MAP_WALL) {
+
+            generateMaze(map, mapWidth, mapHeight, digP, deps+1);
+
+            if (digP.x != p.x)
+                map[(p.x + digP.x) / 2][p.y] = deps + 1;
+            else
+                map[p.x][(digP.y + p.y) / 2] = deps + 1;
+
+            map[digP.x][digP.y] = deps + 1;
+        }
+    }
+}
+
+MazePosition_t getDeepestMazePoint(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazePosition_t p)
+{
+	int deepestDepth = 0;
+    MazePosition_t deepestPosition = { 0,0 };
+
+    for (int i = 0; i < mapHeight; i++)
+    {
+        for (int j = 0; j < mapWidth; j++) {
+            if (deepestDepth < map[j][i]) {
+                deepestDepth = map[j][i];
+                deepestPosition.x = j;
+                deepestPosition.y = i;
+            }
+        }
+    }
+
+    return deepestPosition;
+}
+
+int runMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazePosition_t p, MazePosition_t targetPosition)
+{
+    MazePosition_t currentPosition = p;
+    char inputKey = -1; 
+    while (1) {
+        
+        printf("고양이가 츄르를 찾아서 미로에 들어갔습니다!!\n");
+        printf("츄르를 찾을수 있게 도와주세요!!!\n");
+        printf("CT : 고양이\n");
+        printf("CH : 츄르\n");
+        printf("위:w 아래:s 왼쪽:a 오른쪽: d\n");
+        for (int i = 0; i < mapHeight; i++)
+        {
+            for (int j = 0; j < mapWidth; j++) {
+                if (currentPosition.x == j && currentPosition.y == i)
+                    printf("CT");
+                else if (targetPosition.x == j && targetPosition.y == i)
+                    printf("CH");
+                else
+                    printf("%s", map[j][i] == MAZE_MAP_WALL ? "■" : "  ");
+            }
+            printf("\n");
+        }
+
+        printf("\n");
+        if (currentPosition.x == targetPosition.x && currentPosition.y == targetPosition.y) {
+            return 0;
+        }
+
+        while(1) {
+            inputKey = _getch();
+            
+            if (inputKey != 'w' && inputKey != 's' && inputKey != 'a' && inputKey != 'd')
+                continue;
+
+            if (inputKey == 'w') {
+                if (map[currentPosition.x][currentPosition.y - 1] != MAZE_MAP_WALL) {
+                    currentPosition.y--;
+                    break;
+                }
+                else
+                    continue;
+            }
+            else if (inputKey == 's') {
+                if (map[currentPosition.x][currentPosition.y + 1] != MAZE_MAP_WALL) {
+                    currentPosition.y++;
+                    break;
+                }
+                else
+                    continue;
+            }
+            else if (inputKey == 'a') {
+                if (map[currentPosition.x - 1][currentPosition.y] != MAZE_MAP_WALL) {
+                    currentPosition.x--;
+                    break;
+                }
+                else
+                    continue;
+            }
+            else if (inputKey == 'd') {
+                if (map[currentPosition.x + 1][currentPosition.y] != MAZE_MAP_WALL) {
+                    currentPosition.x++;
+                    break;
+                }
+                else
+                    continue;
+            }
+        }
+        reset(0);
+    }
+    return 0;
 }
