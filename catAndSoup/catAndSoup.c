@@ -706,9 +706,9 @@ void generateMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight,
             generateMaze(map, mapWidth, mapHeight, digP, deps+1);
 
             if (digP.x != p.x)
-                map[(p.x + digP.x) / 2][p.y] = deps + 1;
+                map[(p.x + digP.x) / 2][p.y] = MAZE_MAP_EMPTY;
             else
-                map[p.x][(digP.y + p.y) / 2] = deps + 1;
+                map[p.x][(digP.y + p.y) / 2] = MAZE_MAP_EMPTY;
 
             map[digP.x][digP.y] = deps + 1;
         }
