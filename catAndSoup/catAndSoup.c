@@ -742,18 +742,19 @@ int runMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazeP
         
         printf("고양이가 츄르를 찾아서 미로에 들어갔습니다!!\n");
         printf("츄르를 찾을수 있게 도와주세요!!!\n");
-        printf("CT : 고양이\n");
-        printf("CH : 츄르\n");
+        printf("C: 고양이\n");
+        printf("*: 츄르\n");
         printf("위:w 아래:s 왼쪽:a 오른쪽: d\n");
+        printf("\n");
         for (int i = 0; i < mapHeight; i++)
         {
             for (int j = 0; j < mapWidth; j++) {
                 if (currentPosition.x == j && currentPosition.y == i)
-                    printf("CT");
+                    printf("C");
                 else if (targetPosition.x == j && targetPosition.y == i)
-                    printf("CH");
+                    printf("*");
                 else
-                    printf("%s", map[j][i] == MAZE_MAP_WALL ? "■" : "  ");
+                    printf("%s", map[j][i] == MAZE_MAP_WALL ? "#" : " ");
             }
             printf("\n");
         }
