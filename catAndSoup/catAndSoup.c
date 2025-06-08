@@ -103,7 +103,7 @@ int getRandomRidePosition(void);
 // maze function
 void quest(void);
 void generateMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazePosition_t p,int deps);
-MazePosition_t getDeepestMazePoint(int** map, int mapWidth, int mapHeight, MazePosition_t p);
+MazePosition_t getDeepestMazePoint(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazePosition_t p);
 int runMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazePosition_t p, MazePosition_t targetPosition);
 
 int main()
