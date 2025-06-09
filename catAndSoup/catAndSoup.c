@@ -390,7 +390,14 @@ int main()
 
         if (gameState.turn == 3) {
             reset(0);
+
             quest();
+
+            int catPrevEmotion = gameState.catEmotion;
+            gameState.catEmotion = EMOTION_MAX;
+
+            printf("%s은(는) 츄르를 먹었습니다.\n", catName);
+            printf("%s의 기분이 매우 좋아졌습니다!!! %d -> %d\n", catPrevEmotion, gameState.catEmotion);
         }
 
         catPositions.catPreviousPos = catPositions.catPos;
