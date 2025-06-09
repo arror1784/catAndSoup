@@ -677,7 +677,7 @@ void quest(void)
 
     runMaze(map, MAZE_WIDTH, MAZE_HEIGHT, startPoint, targetPoint);
     
-    printf("고양이가 츄르를 찾았습니다!!!!");
+    printf("고양이가 츄르를 찾았습니다!!!!\n");
 
 }
 
