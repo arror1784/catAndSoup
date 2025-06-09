@@ -770,6 +770,8 @@ int runMaze(int map[MAZE_WIDTH][MAZE_HEIGHT], int mapWidth, int mapHeight, MazeP
         if (currentPosition.x == targetPosition.x && currentPosition.y == targetPosition.y) {
             return 0;
         }
+        
+        mSleep(50);
 
         while(1) {
             inputKey = _getch();
