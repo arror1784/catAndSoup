@@ -208,6 +208,9 @@ int main()
                 gameState.catEmotion = EMOTION_MAX;
             printf("%s은(는) 집에서 기분좋게 휴식을 취했습니다. %d -> %d\n", catName, catPrevEmotion, gameState.catEmotion);
         }
+        else if (catPositions.catPos == HME_POS && catPositions.catPreviousPos != HME_POS) {
+            printf("%s은(는) 집에서 휴식을 취하기 위해 준비합니다.\n", catName);
+        }
         else if(catPositions.catPos == BWL_PO){
             SoupCode_t soup = makeSoup();
             gameState.soupCount += 1;
