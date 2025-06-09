@@ -490,10 +490,7 @@ InteractionCode_t getInteraction(Items_t items)
     do {
         printf(">> ");
         scanf_s("%d", &userInteraction);
-    } while (userInteraction != INTERACTION_NOTHING
-        && userInteraction != INTERACTION_SCRATCH
-        && userInteraction != INTERACTION_MOUSE_TOY
-        && userInteraction != INTERACTION_POINTER_TOY);
+    } while (userInteraction < 0 || userInteraction > interactionCount);
 
     // if userInteraction is 2 and no mouse Toy, it means 2 is pointer toy
     if (userInteraction == 2 && !items.mouseToy)
